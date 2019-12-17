@@ -1,0 +1,1 @@
+web: ./build/install/CRUD-backend/bin/CRUD-backend
