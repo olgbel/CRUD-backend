@@ -2,6 +2,8 @@ package ru.netology.service
 
 import io.ktor.features.NotFoundException
 import io.ktor.util.KtorExperimentalAPI
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import ru.netology.dto.PostRequestDto
 import ru.netology.dto.PostResponseDto
 import ru.netology.model.PostModel
@@ -20,11 +22,11 @@ class PostService(private val repo: PostRepository) {
         return PostResponseDto.fromModel(model)
     }
 
-    suspend fun save(input: PostRequestDto, userId: Long): PostResponseDto {
+    suspend fun save(input: PostRequestDto, userId: Long, postId: Long): PostResponseDto {
         val model =
             if (!input.address.isNullOrEmpty() && input.coordinates != null) {
                 PostModel(
-                    id = input.id,
+                    id = postId,
                     author = userId,
                     postType = PostType.EVENT,
                     content = input.content,
@@ -34,7 +36,7 @@ class PostService(private val repo: PostRepository) {
                 )
             } else if (!input.youtubeURL.isNullOrEmpty()) {
                 PostModel(
-                    id = input.id,
+                    id = postId,
                     author = userId,
                     postType = PostType.MEDIA,
                     content = input.content,
@@ -43,7 +45,7 @@ class PostService(private val repo: PostRepository) {
                 )
             } else {
                 PostModel(
-                    id = input.id,
+                    id = postId,
                     author = userId,
                     postType = PostType.POST,
                     content = input.content,
@@ -68,7 +70,7 @@ class PostService(private val repo: PostRepository) {
     }
 
     suspend fun repostById(id: Long, userId: Long): List<PostResponseDto>? {
-        val existingPost = repo.getById(id) ?: throw NullPointerException()
+        val existingPost = repo.getById(id) ?: throw NotFoundException()
         return userId.let { repo.repostById(existingPost, it)?.map { PostResponseDto.fromModel(it) } }
     }
 }

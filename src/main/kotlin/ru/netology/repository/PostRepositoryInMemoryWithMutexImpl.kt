@@ -2,6 +2,8 @@ package ru.netology.repository
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import ru.netology.model.PostModel
 import ru.netology.model.PostType
 
@@ -22,18 +24,24 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
             return items.find { it.id == id }
         }
     }
+    private val log: Logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)
 
     override suspend fun save(item: PostModel): PostModel {
+        log.debug("post repository with mutex")
         mutex.withLock {
             return when (val index = items.indexOfFirst { it.id == item.id }) {
                 -1 -> {
+                    log.debug("-1")
                     val copy = item.copy(id = nextId++, postType = item.postType)
                     items.add(copy)
+                    log.debug("copy: $copy")
                     copy
                 }
                 else -> {
+                    log.debug("else")
                     val oldItem = items[index].copy(content = item.content)
                     items[index] = oldItem
+                    log.debug("oldItem: $oldItem")
                     oldItem
                 }
             }

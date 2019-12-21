@@ -3,7 +3,6 @@ package ru.netology.dto
 import ru.netology.model.PostType
 
 data class PostRequestDto(
-    val id: Long  = -1,
     val author: Long,
     val postType: PostType = PostType.POST,
     val content: String? = null,

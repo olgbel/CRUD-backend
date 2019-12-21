@@ -78,7 +78,7 @@ class RoutingV1(
                         post {
                             val input = call.receive<PostRequestDto>()
                             val me = call.authentication.principal<UserModel>()
-                            val response = me?.id?.let { it1 -> postService.save(input, it1) }
+                            val response = me?.id?.let { it1 -> postService.save(input, it1, -1) }
                             call.respond(response!!)
                         }
 
@@ -88,7 +88,7 @@ class RoutingV1(
                             val post = postService.getById(postId)
 
                             if (post.author != me.id)
-                                call.respond(HttpStatusCode.Forbidden)
+                                throw ru.netology.exception.AccessDeniedException("You cannot delete another's post!")
 
                             val response = postService.removeById(postId)
                             call.respond(response)
@@ -99,11 +99,11 @@ class RoutingV1(
                             val postId = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
                             val post = postService.getById(postId)
 
-                            if (post.author != me.id)
-                                call.respond(HttpStatusCode.Forbidden)
-
+                            if (post.author != me.id) {
+                                throw ru.netology.exception.AccessDeniedException("You cannot update another's post")
+                            }
                             val input = call.receive<PostRequestDto>()
-                            val response = postService.save(input, me.id)
+                            val response = postService.save(input, me.id, postId)
                             call.respond(response)
                         }
 
