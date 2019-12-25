@@ -124,7 +124,8 @@ class RoutingV1(
                             val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
                             val me = call.authentication.principal<UserModel>()
 
-                            val response = me?.id?.let { it1 -> postService.repostById(id, it1) }
+                            val input = call.receive<PostRequestDto>()
+                            val response = me?.id?.let { it1 -> postService.repostById(id, it1, input) }
                             call.respond(response!!)
                         }
                     }

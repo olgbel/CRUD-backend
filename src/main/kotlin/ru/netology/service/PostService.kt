@@ -69,8 +69,8 @@ class PostService(private val repo: PostRepository) {
         return PostResponseDto.fromModel(model)
     }
 
-    suspend fun repostById(id: Long, userId: Long): List<PostResponseDto>? {
+    suspend fun repostById(id: Long, userId: Long, input: PostRequestDto): List<PostResponseDto>? {
         val existingPost = repo.getById(id) ?: throw NotFoundException()
-        return userId.let { repo.repostById(existingPost, it)?.map { PostResponseDto.fromModel(it) } }
+        return userId.let { repo.repostById(existingPost, it, input)?.map { PostResponseDto.fromModel(it) } }
     }
 }

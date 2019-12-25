@@ -1,5 +1,6 @@
 package ru.netology.repository
 
+import ru.netology.dto.PostRequestDto
 import ru.netology.model.PostModel
 
 interface PostRepository {
@@ -9,5 +10,5 @@ interface PostRepository {
     suspend fun removeById(id: Long)
     suspend fun likeById(id: Long, userId: Long): PostModel?
     suspend fun dislikeById(id: Long, userId: Long): PostModel?
-    suspend fun repostById(item: PostModel, userId: Long): List<PostModel>?
+    suspend fun repostById(item: PostModel, userId: Long, input: PostRequestDto): List<PostModel>?
 }

@@ -4,8 +4,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import ru.netology.dto.PostRequestDto
 import ru.netology.model.PostModel
 import ru.netology.model.PostType
+import ru.netology.model.UserModel
 
 class PostRepositoryInMemoryWithMutexImpl : PostRepository {
 
@@ -92,7 +94,7 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
         }
     }
 
-    override suspend fun repostById(item: PostModel, userId: Long): List<PostModel> {
+    override suspend fun repostById(item: PostModel, userId: Long, input: PostRequestDto): List<PostModel> {
         mutex.withLock {
             val index = items.indexOfFirst { it.id == item.id }
 
@@ -101,10 +103,10 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
 
             val newItem = item.copy(
                 id = nextId++,
-                content = item.content,
+                content = input.content,
                 postType = PostType.REPOST,
                 author = userId,
-                sourceId = item.id,
+                source = item,
                 likes = setOf())
 
             items.add(newItem)
