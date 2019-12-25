@@ -24,7 +24,7 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
 
     override suspend fun getRecentPosts(): List<PostModel> {
         mutex.withLock {
-            return items.subList(max(items.lastIndex - 2, 0), items.lastIndex + 1)
+            return items.subList(max(items.lastIndex - 2, 0), items.lastIndex + 1).reversed()
         }
     }
 
