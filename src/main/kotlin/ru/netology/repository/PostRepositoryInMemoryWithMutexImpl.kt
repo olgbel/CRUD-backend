@@ -8,6 +8,7 @@ import ru.netology.dto.PostRequestDto
 import ru.netology.model.PostModel
 import ru.netology.model.PostType
 import ru.netology.model.UserModel
+import java.lang.Integer.max
 
 class PostRepositoryInMemoryWithMutexImpl : PostRepository {
 
@@ -21,6 +22,26 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
         }
     }
 
+    override suspend fun getRecentPosts(): List<PostModel> {
+        mutex.withLock {
+            return items.subList(max(items.lastIndex - 2, 0), items.lastIndex + 1)
+        }
+    }
+
+    override suspend fun getPostsAfter(id: Long): List<PostModel>{
+        mutex.withLock {
+            val filteredList = items.filter { it.id > id } as MutableList<PostModel>
+            return filteredList.reversed()
+        }
+    }
+
+    override suspend fun getPostsBefore(id: Long): List<PostModel>{
+        mutex.withLock {
+            val filteredList = items.filter { it.id < id } as MutableList<PostModel>
+            return filteredList.reversed()
+        }
+    }
+
     override suspend fun getById(id: Long): PostModel? {
         mutex.withLock {
             return items.find { it.id == id }
@@ -29,21 +50,16 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
     private val log: Logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)
 
     override suspend fun save(item: PostModel): PostModel {
-        log.debug("post repository with mutex")
         mutex.withLock {
             return when (val index = items.indexOfFirst { it.id == item.id }) {
                 -1 -> {
-                    log.debug("-1")
                     val copy = item.copy(id = nextId++, postType = item.postType)
                     items.add(copy)
-                    log.debug("copy: $copy")
                     copy
                 }
                 else -> {
-                    log.debug("else")
                     val oldItem = items[index].copy(content = item.content)
                     items[index] = oldItem
-                    log.debug("oldItem: $oldItem")
                     oldItem
                 }
             }

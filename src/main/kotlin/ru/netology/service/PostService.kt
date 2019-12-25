@@ -17,6 +17,18 @@ class PostService(private val repo: PostRepository) {
         return repo.getAll().reversed().map { PostResponseDto.fromModel(it) }
     }
 
+    suspend fun getRecentPosts(): List<PostResponseDto> {
+        return repo.getRecentPosts().map { PostResponseDto.fromModel(it)}
+    }
+
+    suspend fun getPostsAfter(id: Long): List<PostResponseDto>  {
+        return repo.getPostsAfter(id).map { PostResponseDto.fromModel(it) }
+    }
+
+    suspend fun getPostsBefore(id: Long): List<PostResponseDto> {
+        return repo.getPostsBefore(id).map { PostResponseDto.fromModel(it) }
+    }
+
     suspend fun getById(id: Long): PostResponseDto {
         val model = repo.getById(id) ?: throw NotFoundException()
         return PostResponseDto.fromModel(model)
