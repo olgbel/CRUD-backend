@@ -1,5 +1,7 @@
 package ru.netology.dto
 
+import ru.netology.model.AttachmentModel
+import ru.netology.model.MediaModel
 import ru.netology.model.PostModel
 import ru.netology.model.PostType
 
@@ -13,7 +15,8 @@ data class PostResponseDto(val id: Long,
                            val postType: PostType = PostType.POST,
                            val youtubeURL: String? = null,
                            val address: String? = null,
-                           val coordinates: Pair<Double, Double>? = null) {
+                           val coordinates: Pair<Double, Double>? = null,
+                           val attachment: AttachmentModel? = null) {
     companion object {
         fun fromModel(model: PostModel) = PostResponseDto(
             id = model.id,
@@ -26,7 +29,8 @@ data class PostResponseDto(val id: Long,
             postType = model.postType,
             youtubeURL = model.youtubeURL,
             address = model.address,
-            coordinates = model.coordinates
+            coordinates = model.coordinates,
+            attachment = model.attachment
         )
     }
 }

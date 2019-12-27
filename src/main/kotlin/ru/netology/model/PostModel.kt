@@ -12,7 +12,7 @@ data class PostModel(
     val youtubeURL: String? = null,
     val address: String? = null,
     val coordinates: Pair<Double, Double>? = null,
-    val attachment: MediaModel? = null
+    val attachment: AttachmentModel? = null
 )
 enum class PostType {
     POST, REPOST, EVENT, MEDIA

@@ -61,7 +61,8 @@ class PostService(private val repo: PostRepository) {
                     author = userId,
                     postType = PostType.POST,
                     content = input.content,
-                    reposts = input.reposts
+                    reposts = input.reposts,
+                    attachment = input.attachment
                 )
             }
         return PostResponseDto.fromModel(repo.save(model))

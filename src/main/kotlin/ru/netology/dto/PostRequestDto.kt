@@ -1,5 +1,6 @@
 package ru.netology.dto
 
+import ru.netology.model.AttachmentModel
 import ru.netology.model.PostType
 
 data class PostRequestDto(
@@ -9,5 +10,6 @@ data class PostRequestDto(
     val address: String? = null,
     val coordinates: Pair<Double, Double>? = null,
     val youtubeURL: String? = null,
-    val reposts: Int = 0
+    val reposts: Int = 0,
+    val attachment: AttachmentModel? = null
 )
