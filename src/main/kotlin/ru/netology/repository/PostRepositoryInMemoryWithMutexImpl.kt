@@ -123,7 +123,8 @@ class PostRepositoryInMemoryWithMutexImpl : PostRepository {
                 postType = PostType.REPOST,
                 author = userId,
                 source = item,
-                likes = setOf())
+                likes = setOf(),
+                attachment = input.attachment)
 
             items.add(newItem)
             return listOf(oldItem, newItem)
