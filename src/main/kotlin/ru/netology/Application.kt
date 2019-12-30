@@ -24,10 +24,7 @@ import ru.netology.repository.PostRepositoryInMemoryWithMutexImpl
 import ru.netology.repository.UserRepository
 import ru.netology.repository.UserRepositoryInMemoryWithMutexImpl
 import ru.netology.route.RoutingV1
-import ru.netology.service.FileService
-import ru.netology.service.JWTTokenService
-import ru.netology.service.PostService
-import ru.netology.service.UserService
+import ru.netology.service.*
 import javax.naming.ConfigurationException
 
 fun main(args: Array<String>) {
@@ -53,10 +50,10 @@ fun Application.module() {
         exception<BadRequestException> {
             call.respond(HttpStatusCode.BadRequest, ErrorResponseDto(it.message.toString()))
         }
-        exception<ru.netology.exception.AccessDeniedException>{
+        exception<ru.netology.exception.AccessDeniedException> {
             call.respond(HttpStatusCode.Forbidden, ErrorResponseDto(it.message.toString()))
         }
-        exception<NotFoundException>{
+        exception<NotFoundException> {
             call.respond(HttpStatusCode.NotFound, ErrorResponseDto(it.message.toString()))
         }
         exception<Throwable> {
@@ -66,20 +63,53 @@ fun Application.module() {
     }
 
     install(KodeinFeature) {
-        constant(tag ="upload-dir") with "./uploads"//(environment.config.propertyOrNull("ncraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir is not specified"))
+        constant(tag = "upload-dir") with "./uploads"//(environment.config.propertyOrNull("ncraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir is not specified"))
+        constant(tag = "fcm-password") with (environment.config.propertyOrNull("crud.fcm.password")?.getString()
+            ?: throw ConfigurationException("FCM Password is not specified"))
+        constant(tag = "fcm-salt") with (environment.config.propertyOrNull("crud.fcm.salt")?.getString()
+            ?: throw ConfigurationException("FCM Salt is not specified"))
+        constant(tag = "fcm-db-url") with (environment.config.propertyOrNull("crud.fcm.db-url")?.getString()
+            ?: throw ConfigurationException("FCM DB Url is not specified"))
+        constant(tag = "fcm-path") with (environment.config.propertyOrNull("crud.fcm.path")?.getString()
+            ?: throw ConfigurationException("FCM JSON Path is not specified"))
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
-        bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
+        bind<JWTTokenService>() with eagerSingleton { JWTTokenService(instance(tag = "jwt-secret")) }
         bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
         bind<PostService>() with eagerSingleton { PostService(instance()) }
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
-        bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance()).apply {
-            //            runBlocking {
+        bind<UserService>() with eagerSingleton {
+            UserService(instance(), instance(), instance()).apply {
+                //            runBlocking {
 //                this@apply.save("vasya", "password")
 //                this@apply.save("login", "password")
 //            }
-        } }
-        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(tag = "upload-dir"), instance(), instance(), instance()) }
+            }
+        }
+        bind<FCMService>() with eagerSingleton {
+            FCMService(
+                instance(tag = "fcm-db-url"),
+                instance(tag = "fcm-password"),
+                instance(tag = "fcm-salt"),
+                instance(tag = "fcm-path")
+            ).also {
+                runBlocking {
+                    it.send(
+                        1,
+                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mn0.MTwiw7lL_X_KZyw84vBBcePuJwo0SXwvH1ipjl5aIVY",
+                        "Your post liked!"
+                    )
+                }
+            }
+        }
+        bind<RoutingV1>() with eagerSingleton {
+            RoutingV1(
+                instance(tag = "upload-dir"),
+                instance(),
+                instance(),
+                instance()
+            )
+        }
     }
 
     install(Authentication) {

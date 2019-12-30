@@ -15,17 +15,21 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-admin:6.10.0'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "io.ktor:ktor-server-cio:1.2.4"
+    implementation "org.springframework.security:spring-security-crypto:5.1.6.RELEASE"
+
+    implementation 'io.ktor:ktor-auth:1.2.4'
+    implementation 'io.ktor:ktor-auth-jwt:1.2.4'
     implementation "io.ktor:ktor-gson:1.2.4"
+    implementation "io.ktor:ktor-server-cio:1.2.4"
+
     implementation "ch.qos.logback:logback-classic:1.2.3"
     implementation "commons-logging:commons-logging:1.2"
     implementation 'org.kodein.di:kodein-di-generic-jvm:6.3.3'
     implementation 'org.kodein.di:kodein-di-framework-ktor-server-jvm:6.3.3'
 
-    implementation 'io.ktor:ktor-auth:1.2.4'
-    implementation 'io.ktor:ktor-auth-jwt:1.2.4'
-    implementation "org.springframework.security:spring-security-crypto:5.1.6.RELEASE"
     testImplementation "io.ktor:ktor-server-tests:1.2.4"
     testImplementation "com.jayway.jsonpath:json-path:2.4.0"
 }
