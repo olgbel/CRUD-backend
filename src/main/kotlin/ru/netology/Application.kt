@@ -63,7 +63,10 @@ fun Application.module() {
     }
 
     install(KodeinFeature) {
-        constant(tag = "upload-dir") with "./uploads"//(environment.config.propertyOrNull("ncraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir is not specified"))
+        constant(tag = "upload-dir") with (environment.config.propertyOrNull("crud.upload.dir")?.getString()
+            ?: throw ConfigurationException("Upload dir is not specified"))
+        constant(tag = "jwt-secret") with (environment.config.propertyOrNull("crud.jwt.secret")?.getString()
+            ?: throw ConfigurationException("JWT Secret is not specified"))
         constant(tag = "fcm-password") with (environment.config.propertyOrNull("crud.fcm.password")?.getString()
             ?: throw ConfigurationException("FCM Password is not specified"))
         constant(tag = "fcm-salt") with (environment.config.propertyOrNull("crud.fcm.salt")?.getString()
@@ -75,9 +78,9 @@ fun Application.module() {
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService(instance(tag = "jwt-secret")) }
         bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
-        bind<PostService>() with eagerSingleton { PostService(instance()) }
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
+        bind<PostService>() with eagerSingleton { PostService(instance(), instance(), instance(), instance()) }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
                 //            runBlocking {
@@ -92,15 +95,16 @@ fun Application.module() {
                 instance(tag = "fcm-password"),
                 instance(tag = "fcm-salt"),
                 instance(tag = "fcm-path")
-            ).also {
-                runBlocking {
-                    it.send(
-                        1,
-                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mn0.MTwiw7lL_X_KZyw84vBBcePuJwo0SXwvH1ipjl5aIVY",
-                        "Your post liked!"
-                    )
-                }
-            }
+            )
+//                .also {
+//                runBlocking {
+//                    it.send(
+//                        1,
+//                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mn0.MTwiw7lL_X_KZyw84vBBcePuJwo0SXwvH1ipjl5aIVY",
+//                        "Your post liked!"
+//                    )
+//                }
+//            }
         }
         bind<RoutingV1>() with eagerSingleton {
             RoutingV1(

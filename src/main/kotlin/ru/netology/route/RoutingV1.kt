@@ -11,10 +11,7 @@ import io.ktor.request.receiveMultipart
 import io.ktor.response.respond
 import io.ktor.routing.*
 import io.ktor.util.KtorExperimentalAPI
-import ru.netology.dto.AuthenticationRequestDto
-import ru.netology.dto.PostRequestDto
-import ru.netology.dto.RegistrationRequestDto
-import ru.netology.dto.UserResponseDto
+import ru.netology.dto.*
 import ru.netology.model.UserModel
 import ru.netology.service.FileService
 import ru.netology.service.PostService
@@ -57,20 +54,30 @@ class RoutingV1(
                         }
                     }
 
+                    route("/token") {
+                        post {
+                            val input = call.receive<PushRequestParamsDto>()
+                            val me = call.authentication.principal<UserModel>()
+                            val response = userService.saveToken(me!!, input)
+                            call.respond(response)
+                            postService.sendSimplePush(me.id, "Welcome push", "Welcome, ${me.username}")
+                        }
+                    }
+
                     route("/posts") {
                         get {
                             val response = postService.getAll()
                             call.respond(response)
                         }
 
-                        get("/recent"){
+                        get("/recent") {
                             println("start recent")
                             val response = postService.getRecentPosts()
                             println("response: $response")
                             call.respond(response)
                         }
 
-                        get("/after/{id}"){
+                        get("/after/{id}") {
                             val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
                                 "id",
                                 "Long"
@@ -79,7 +86,7 @@ class RoutingV1(
                             call.respond(response)
                         }
 
-                        get("/before/{id}"){
+                        get("/before/{id}") {
                             val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
                                 "id",
                                 "Long"
@@ -107,7 +114,11 @@ class RoutingV1(
 
                         delete("/{id}") {
                             val me = call.authentication.principal<UserModel>()!!
-                            val postId = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                            val postId =
+                                call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
+                                    "id",
+                                    "Long"
+                                )
                             val post = postService.getById(postId)
 
                             if (post.author != me.id)
@@ -117,9 +128,13 @@ class RoutingV1(
                             call.respond(response)
                         }
 
-                        put("/{id}"){
+                        put("/{id}") {
                             val me = call.authentication.principal<UserModel>()!!
-                            val postId = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                            val postId =
+                                call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
+                                    "id",
+                                    "Long"
+                                )
                             val post = postService.getById(postId)
 
                             if (post.author != me.id) {
@@ -131,20 +146,29 @@ class RoutingV1(
                         }
 
                         post("/like/{id}") {
-                            val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                            val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
+                                "id",
+                                "Long"
+                            )
                             val me = call.authentication.principal<UserModel>()
                             val response = me?.id?.let { it1 -> postService.likeById(id, it1) }
                             call.respond(response!!)
                         }
                         post("/dislike/{id}") {
-                            val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                            val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
+                                "id",
+                                "Long"
+                            )
                             val me = call.authentication.principal<UserModel>()
                             val response = me?.id?.let { it1 -> postService.dislikeById(id, it1) }
                             call.respond(response!!)
                         }
 
                         post("/repost/{id}") {
-                            val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                            val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException(
+                                "id",
+                                "Long"
+                            )
                             val me = call.authentication.principal<UserModel>()
 
                             val input = call.receive<PostRequestDto>()

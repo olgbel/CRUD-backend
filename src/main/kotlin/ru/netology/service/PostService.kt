@@ -9,10 +9,14 @@ import ru.netology.dto.PostResponseDto
 import ru.netology.model.PostModel
 import ru.netology.model.PostType
 import ru.netology.repository.PostRepository
+import ru.netology.repository.UserRepository
 
 
 @KtorExperimentalAPI
-class PostService(private val repo: PostRepository) {
+class PostService(private val repo: PostRepository,
+                  private val repoUser: UserRepository,
+                  private val userService: UserService,
+                  private val fcmService: FCMService) {
     suspend fun getAll(): List<PostResponseDto> {
         return repo.getAll().reversed().map { PostResponseDto.fromModel(it) }
     }
@@ -72,8 +76,14 @@ class PostService(private val repo: PostRepository) {
         repo.removeById(id)
     }
 
-    suspend fun likeById(id: Long, userId: Long): PostResponseDto {
-        val model = repo.likeById(id, userId) ?: throw NotFoundException()
+    suspend fun likeById(postId: Long, userId: Long): PostResponseDto {
+        val model = repo.likeById(postId, userId) ?: throw NotFoundException()
+        val likeText = if (model.content?.length ?: 0 > 15) model.content?.substring(0, 15) + "..." else model.content
+        if (userId != model.author){
+            val user = repoUser.getById(userId)
+            sendSimplePush(model.author, "Your post liked", "${user?.username} лайкнул ваше сообщение '${likeText}'")
+        }
+
         return PostResponseDto.fromModel(model)
     }
 
@@ -85,5 +95,15 @@ class PostService(private val repo: PostRepository) {
     suspend fun repostById(id: Long, userId: Long, input: PostRequestDto): List<PostResponseDto>? {
         val existingPost = repo.getById(id) ?: throw NotFoundException()
         return userId.let { repo.repostById(existingPost, it, input)?.map { PostResponseDto.fromModel(it) } }
+    }
+
+    suspend fun sendSimplePush(userId: Long, title: String, text: String) {
+        println("send push")
+        val model = userService.getModelById(userId)
+        println("model: $model")
+        if (model?.token != null) {
+            println("token is not null")
+            fcmService.send(userId, model.token.token, title, text)
+        }
     }
 }
