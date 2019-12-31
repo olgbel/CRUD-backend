@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import ru.netology.dto.*
 import ru.netology.exception.InvalidPasswordException
 import ru.netology.exception.PasswordChangeException
+import ru.netology.model.PushToken
 import ru.netology.model.UserModel
 import ru.netology.repository.UserRepository
 
@@ -65,6 +66,13 @@ class UserService(
         mutex.withLock {
             repo.save(UserModel(username = username, password = passwordEncoder.encode(password)))
             return
+        }
+    }
+
+    suspend fun saveToken(user: UserModel, input: PushRequestParamsDto) {
+        mutex.withLock {
+            val copy = user.copy(token = PushToken(input.token))
+            repo.save(copy)
         }
     }
 }
