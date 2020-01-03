@@ -83,10 +83,6 @@ fun Application.module() {
         bind<PostService>() with eagerSingleton { PostService(instance(), instance(), instance(), instance()) }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
-                //            runBlocking {
-//                this@apply.save("vasya", "password")
-//                this@apply.save("login", "password")
-//            }
             }
         }
         bind<FCMService>() with eagerSingleton {
@@ -96,15 +92,6 @@ fun Application.module() {
                 instance(tag = "fcm-salt"),
                 instance(tag = "fcm-path")
             )
-//                .also {
-//                runBlocking {
-//                    it.send(
-//                        1,
-//                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mn0.MTwiw7lL_X_KZyw84vBBcePuJwo0SXwvH1ipjl5aIVY",
-//                        "Your post liked!"
-//                    )
-//                }
-//            }
         }
         bind<RoutingV1>() with eagerSingleton {
             RoutingV1(

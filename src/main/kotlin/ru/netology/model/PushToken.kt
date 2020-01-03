@@ -1,5 +1,5 @@
 package ru.netology.model
 
-data class PushToken (
+inline class PushToken (
     val token: String
 )
