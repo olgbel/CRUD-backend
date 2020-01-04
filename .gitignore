@@ -24,3 +24,4 @@
 /.nb-gradle/
 
 /fcm/
+!/fcm/.gitkeep
