@@ -73,8 +73,8 @@ fun Application.module() {
             ?: throw ConfigurationException("FCM Salt is not specified"))
         constant(tag = "fcm-db-url") with (environment.config.propertyOrNull("crud.fcm.db-url")?.getString()
             ?: throw ConfigurationException("FCM DB Url is not specified"))
-        constant(tag = "fcm-path") with (environment.config.propertyOrNull("crud.fcm.path")?.getString()
-            ?: throw ConfigurationException("FCM JSON Path is not specified"))
+//        constant(tag = "fcm-path") with (environment.config.propertyOrNull("crud.fcm.path")?.getString()
+//            ?: throw ConfigurationException("FCM JSON Path is not specified"))
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService(instance(tag = "jwt-secret")) }
         bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
@@ -89,8 +89,8 @@ fun Application.module() {
             FCMService(
                 instance(tag = "fcm-db-url"),
                 instance(tag = "fcm-password"),
-                instance(tag = "fcm-salt"),
-                instance(tag = "fcm-path")
+                instance(tag = "fcm-salt")//,
+//                instance(tag = "fcm-path")
             )
         }
         bind<RoutingV1>() with eagerSingleton {

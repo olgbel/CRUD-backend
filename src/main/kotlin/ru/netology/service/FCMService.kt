@@ -13,13 +13,14 @@ import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class FCMService(private val dbUrl: String, private val password: String, private val salt: String, private val path: String) {
+class FCMService(private val dbUrl: String, private val password: String, private val salt: String/*, private val path: String*/) {
     init {
         val decryptor = Encryptors.stronger(password, Hex.encodeHexString(salt.toByteArray(Charsets.UTF_8)))
-        val decrypted = decryptor.decrypt(Files.readAllBytes(Paths.get(path)))
+//        val decrypted = decryptor.decrypt(Files.readAllBytes(Paths.get(path)))
 
         val options = FirebaseOptions.Builder()
-            .setCredentials(GoogleCredentials.fromStream(ByteArrayInputStream(decrypted)))
+//            .setCredentials(GoogleCredentials.fromStream(ByteArrayInputStream(decrypted)))
+            .setCredentials(GoogleCredentials.fromStream(ByteArrayInputStream(System.getenv("GCS_CREDENTIALS").toByteArray())))
             .setDatabaseUrl(dbUrl)
             .build()
 
