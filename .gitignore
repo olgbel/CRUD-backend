@@ -1,5 +1,8 @@
+/fcm/
+!/fcm/.gitkeep
 /out/
 /target/
+!.mvn/wrapper/maven-wrapper.jar
 .gradle
 !.maven/wrapper/maven-wrapper.jar
 
@@ -22,6 +25,3 @@
 /dist/
 /nbdist/
 /.nb-gradle/
-
-/fcm/
-!/fcm/.gitkeep
